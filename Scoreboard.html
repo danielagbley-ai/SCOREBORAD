@@ -2,182 +2,88 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- Google Font: Montserrat -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      width: 1920px;
-      height: 1080px;
-      overflow: hidden;
-      font-family: 'Montserrat', sans-serif;
-      background: transparent;
+      margin: 0; padding: 0; width: 1920px; height: 1080px;
+      overflow: hidden; font-family: 'Montserrat', sans-serif; background: transparent;
     }
 
-    /* Lower-Third Bar with #1951a4 Background */
+    /* LOWER THIRD BAR */
     .lower-third-bar {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 125px;
-      background: #1951a4;
-      border-top: 3px solid #facc15;
-      box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      padding: 0 25px;
-      box-sizing: border-box;
+      position: absolute; bottom: 0; left: 0; width: 100%; height: 125px;
+      background: #1951a4; border-top: 3px solid #facc15;
+      box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.5); display: flex;
+      align-items: center; padding: 0 25px; box-sizing: border-box;
+      transition: transform 0.5s ease-in-out;
     }
+    .lower-third-bar.hidden { transform: translateY(150px); }
 
-    /* Left Side: Event Branding */
     .event-branding {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding-right: 25px;
-      border-right: 2px solid rgba(255, 255, 255, 0.25);
-      flex-shrink: 0;
-      min-width: 320px;
+      display: flex; align-items: center; gap: 16px; padding-right: 25px;
+      border-right: 2px solid rgba(255, 255, 255, 0.25); flex-shrink: 0; min-width: 320px;
     }
-
-    /* Competition Logo Box (Transparent Background & Enlarged Area) */
-    .event-logo-box {
-      width: 85px;
-      height: 85px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent;
-      border: none;
-    }
-
-    .event-logo {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
-    }
-
-    .event-text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .event-title {
-      color: #ffffff;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-      line-height: 1.1;
-    }
-
-    .event-subtitle {
-      color: #facc15;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      margin-top: 3px;
-    }
-
-    /* Right Side: 4 Team Cards */
-    .teams-container {
-      flex-grow: 1;
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      margin-left: 15px;
-    }
-
+    .event-logo-box { width: 85px; height: 85px; display: flex; align-items: center; justify-content: center; }
+    .event-logo { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
+    .event-text { display: flex; flex-direction: column; }
+    .event-title { color: #ffffff; font-size: 22px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; line-height: 1.1; }
+    .event-subtitle { color: #facc15; font-size: 13px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-top: 3px; }
+    .teams-container { flex-grow: 1; display: flex; align-items: center; justify-content: space-around; margin-left: 15px; }
     .team-card {
-      flex: 1;
-      max-width: 350px;
-      height: 72px;
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-      margin: 0 6px;
-      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+      flex: 1; max-width: 350px; height: 72px; background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 8px; display: flex;
+      align-items: center; padding: 0 10px; margin: 0 6px;
     }
-
-    /* Team Logo Container (Maintained White Background) */
     .team-logo-container {
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #ffffff;
-      border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      margin-right: 10px;
-      flex-shrink: 0;
+      width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
+      background: #ffffff; border-radius: 6px; margin-right: 10px; flex-shrink: 0;
     }
-
-    .team-logo {
-      max-width: 42px;
-      max-height: 42px;
-      object-fit: contain;
-    }
-
-    /* Team Names Styled in Montserrat */
-    .team-name {
-      flex-grow: 1;
-      color: #ffffff;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 19px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-    }
-
+    .team-logo { max-width: 42px; max-height: 42px; object-fit: contain; }
+    .team-name { flex-grow: 1; color: #ffffff; font-size: 19px; font-weight: 800; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .score-badge {
-      background: linear-gradient(180deg, #facc15 0%, #ca8a04 100%);
-      color: #000000;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 30px;
-      font-weight: 900;
-      min-width: 58px;
-      height: 52px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-      margin-left: 8px;
-      flex-shrink: 0;
+      background: linear-gradient(180deg, #facc15 0%, #ca8a04 100%); color: #000000;
+      font-size: 30px; font-weight: 900; min-width: 58px; height: 52px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center; margin-left: 8px; flex-shrink: 0;
     }
 
-    .score-badge.pop {
-      animation: scorePop 0.4s ease-in-out;
+    /* FULLSCREEN END OF ROUND BOARD */
+    .fullscreen-board {
+      position: absolute; top: 0; left: 0; width: 1920px; height: 1080px;
+      background: radial-gradient(circle at center, #1e3a8a 0%, #0f172a 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.5s ease-in-out; padding: 60px; box-sizing: border-box;
     }
+    .fullscreen-board.visible { opacity: 1; pointer-events: auto; }
 
-    @keyframes scorePop {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.3); background: #4ade80; color: #000; }
-      100% { transform: scale(1); }
+    .fs-header { text-align: center; margin-bottom: 40px; }
+    .fs-round-title { font-size: 36px; font-weight: 900; color: #facc15; text-transform: uppercase; letter-spacing: 2px; }
+    .fs-main-title { font-size: 56px; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+
+    .fs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; width: 100%; max-width: 1400px; }
+    .fs-team-card {
+      background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(250, 204, 21, 0.4);
+      border-radius: 16px; padding: 20px 30px; display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4); backdrop-filter: blur(10px);
+    }
+    .fs-team-left { display: flex; align-items: center; gap: 20px; }
+    .fs-logo-box { width: 90px; height: 90px; background: #ffffff; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 8px; }
+    .fs-logo { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .fs-team-name { font-size: 32px; font-weight: 900; color: #ffffff; text-transform: uppercase; }
+    .fs-score-box {
+      background: linear-gradient(180deg, #facc15 0%, #ca8a04 100%); color: #000;
+      font-size: 52px; font-weight: 900; min-width: 110px; height: 90px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
   </style>
 </head>
 <body>
 
-  <div class="lower-third-bar">
+  <!-- LOWER THIRD -->
+  <div class="lower-third-bar" id="lowerThird">
     <div class="event-branding">
       <div class="event-logo-box">
         <img id="eventLogo" class="event-logo" src="" alt="Event Logo" style="display:none;">
@@ -187,16 +93,28 @@
         <div id="eventSubtitle" class="event-subtitle">ASHANTI REGIONAL QUALIFIERS</div>
       </div>
     </div>
-
     <div class="teams-container" id="teamsContainer"></div>
   </div>
 
+  <!-- FULLSCREEN LEADERBOARD -->
+  <div class="fullscreen-board" id="fullscreenBoard">
+    <div class="fs-header">
+      <div id="fsRoundTitle" class="fs-round-title">END OF ROUND 1</div>
+      <div id="fsMainTitle" class="fs-main-title">SCORE STANDINGS</div>
+    </div>
+    <div class="fs-grid" id="fsGrid"></div>
+  </div>
+
   <script>
-    const bc = new BroadcastChannel('quiz_scoreboard');
     const teamsContainer = document.getElementById('teamsContainer');
-    let previousScores = {};
+    const fsGrid = document.getElementById('fsGrid');
+    const lowerThird = document.getElementById('lowerThird');
+    const fullscreenBoard = document.getElementById('fullscreenBoard');
 
     function render(state) {
+      if (!state || !state.teams) return;
+      
+      // Update Event Titles
       const logoEl = document.getElementById('eventLogo');
       if (state.eventLogo) {
         logoEl.src = state.eventLogo;
@@ -204,44 +122,77 @@
       } else {
         logoEl.style.display = 'none';
       }
-      document.getElementById('eventTitle').innerText = state.eventTitle || 'NSMQ 2026';
-      document.getElementById('eventSubtitle').innerText = state.eventSubtitle || 'REGIONAL QUALIFIERS';
+      document.getElementById('eventTitle').innerText = state.eventTitle || '2026';
+      document.getElementById('eventSubtitle').innerText = state.eventSubtitle || 'ASHANTI REGIONAL QUALIFIERS';
 
+      // Screen Mode Toggle
+      if (state.displayMode === 'fullscreen') {
+        lowerThird.classList.add('hidden');
+        fullscreenBoard.classList.add('visible');
+      } else {
+        lowerThird.classList.remove('hidden');
+        fullscreenBoard.classList.remove('visible');
+      }
+
+      document.getElementById('fsRoundTitle').innerText = state.roundTitle || 'END OF ROUND 1';
+
+      // Render Lower Third
       teamsContainer.innerHTML = '';
-      state.teams.forEach((t, i) => {
-        const hasChanged = previousScores[i] !== undefined && previousScores[i] !== t.score;
+      state.teams.forEach((t) => {
         const logoSrc = t.logo ? t.logo : 'https://via.placeholder.com/50?text=LOGO';
-
         const card = document.createElement('div');
         card.className = 'team-card';
         card.innerHTML = `
-          <div class="team-logo-container">
-            <img class="team-logo" src="${logoSrc}" alt="Logo">
-          </div>
+          <div class="team-logo-container"><img class="team-logo" src="${logoSrc}"></div>
           <div class="team-name">${t.name}</div>
-          <div class="score-badge ${hasChanged ? 'pop' : ''}">${t.score}</div>
+          <div class="score-badge">${t.score}</div>
         `;
         teamsContainer.appendChild(card);
-        previousScores[i] = t.score;
+      });
+
+      // Render Fullscreen Board
+      fsGrid.innerHTML = '';
+      state.teams.forEach((t) => {
+        const logoSrc = t.logo ? t.logo : 'https://via.placeholder.com/50?text=LOGO';
+        const fsCard = document.createElement('div');
+        fsCard.className = 'fs-team-card';
+        fsCard.innerHTML = `
+          <div class="fs-team-left">
+            <div class="fs-logo-box"><img class="fs-logo" src="${logoSrc}"></div>
+            <div class="fs-team-name">${t.name}</div>
+          </div>
+          <div class="fs-score-box">${t.score}</div>
+        `;
+        fsGrid.appendChild(fsCard);
       });
     }
 
-    bc.onmessage = (e) => render(e.data);
-
-    const defaultData = {
-      eventTitle: 'NSMQ 2026',
+    const defaultState = {
+      displayMode: 'lower-third',
+      roundTitle: 'END OF ROUND 1',
+      eventTitle: '2026',
       eventSubtitle: 'ASHANTI REGIONAL QUALIFIERS',
-      eventLogo: 'nsmq_logo.png',
+      eventLogo: 'GANDSA.PNG',
       teams: [
-        { name: 'KUMASI ACAD.', score: 0, logo: 'kumasi.png' },
-        { name: 'EJISU SHTS', score: 0, logo: 'ejisu.png' },
-        { name: 'PREMPEH COLL.', score: 0, logo: 'prempeh.png' },
-        { name: 'OWASS', score: 0, logo: 'owass.png' }
+        { name: 'KUMASI ACAD.', score: 0, logo: 'GANDSA.PNG' },
+        { name: 'EJISU SHTS', score: 0, logo: 'KLINTAPS.PNG' },
+        { name: 'PREMPEH COLL.', score: 0, logo: 'MELSSA.PNG' },
+        { name: 'OWASS', score: 0, logo: 'MISA.PNG' }
       ]
     };
 
-    const saved = JSON.parse(localStorage.getItem('quiz_full_state'));
-    render(saved || defaultData);
+    const initialData = JSON.parse(localStorage.getItem('quiz_full_state')) || defaultState;
+    render(initialData);
+
+    try {
+      const peer = new Peer('nsmq-obs-display-screen-key');
+      peer.on('connection', (conn) => {
+        conn.on('data', (data) => render(data));
+      });
+    } catch(e) {}
+
+    const bc = new BroadcastChannel('quiz_scoreboard');
+    bc.onmessage = (e) => render(e.data);
   </script>
 </body>
 </html>
