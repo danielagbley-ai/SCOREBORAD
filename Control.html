@@ -3,70 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <title>Quiz Scoreboard Live Controller</title>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: white; padding: 20px; max-width: 850px; margin: 0 auto; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; padding: 20px; max-width: 850px; margin: 0 auto; }
+    .status { background: #334155; padding: 8px 12px; border-radius: 6px; font-size: 13px; margin-bottom: 15px; display: inline-block; font-weight: bold; }
+    .status.online { background: #15803d; }
     .section { background: #1e293b; padding: 18px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #334155; }
     h2, h3 { margin-top: 0; color: #38bdf8; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; background: #0f172a; padding: 12px; border-radius: 6px; border: 1px solid #334155; }
-    input[type="text"] { padding: 9px; border-radius: 4px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 14px; width: 100%; box-sizing: border-box; }
-    button { padding: 8px 14px; font-size: 16px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; background: #0284c7; color: white; transition: background 0.2s; }
+    input[type="text"], input[type="number"] { padding: 9px; border-radius: 4px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 14px; width: 100%; box-sizing: border-box; }
+    button { padding: 8px 12px; font-size: 15px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; background: #0284c7; color: white; }
     button:hover { background: #0369a1; }
     button.btn-danger { background: #ef4444; }
-    button.btn-danger:hover { background: #dc2626; }
     button.btn-success { background: #22c55e; }
-    button.btn-success:hover { background: #16a34a; }
     label { font-size: 12px; color: #94a3b8; display: flex; flex-direction: column; gap: 4px; width: 100%; font-weight: 600; }
-    .score-controls { display: flex; align-items: center; gap: 6px; margin-top: 16px; }
-    .score-val { min-width: 40px; text-align: center; font-weight: 800; font-size: 22px; color: #facc15; }
-    .action-bar { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
+    .score-input { font-size: 18px !important; font-weight: 800 !important; color: #facc15 !important; text-align: center; }
+    .score-controls { display: flex; align-items: flex-end; gap: 6px; }
   </style>
 </head>
 <body>
 
   <h2>NSMQ Broadcast Live Controller</h2>
+  <div id="statusBox" class="status">Connecting to Scoreboard...</div>
 
-  <!-- Tournament Branding Settings -->
   <div class="section">
     <h3>Tournament & Event Settings</h3>
     <div class="grid">
-      <label>Tournament Title
-        <input type="text" id="eventTitle" value="NSMQ 2026" onchange="sync()">
-      </label>
-      <label>Stage / Subtitle
-        <input type="text" id="eventSubtitle" value="ASHANTI REGIONAL QUALIFIERS" onchange="sync()">
-      </label>
+      <label>Tournament Title <input type="text" id="eventTitle" value="2026" onchange="sync()"></label>
+      <label>Stage / Subtitle <input type="text" id="eventSubtitle" value="ASHANTI REGIONAL QUALIFIERS" onchange="sync()"></label>
     </div>
     <div style="margin-top: 12px;">
-      <label>Event Logo File / Web URL
-        <input type="text" id="eventLogo" placeholder="e.g. nsmq_logo.png" onchange="sync()">
-      </label>
+      <label>Event Logo File / Web URL <input type="text" id="eventLogo" value="GANDSA.PNG" onchange="sync()"></label>
     </div>
   </div>
 
-  <!-- Team Names, Logos & Score Buttons -->
   <div class="section">
     <h3>Participating Teams & Live Scores</h3>
     <div id="controls"></div>
-    <div class="action-bar">
-      <button class="btn-danger" onclick="resetScores()">Reset All Scores to 0</button>
-    </div>
   </div>
 
   <script>
     const bc = new BroadcastChannel('quiz_scoreboard');
-    
+    let conn = null;
+
     let state = JSON.parse(localStorage.getItem('quiz_full_state')) || {
-      eventTitle: 'NSMQ 2026',
+      eventTitle: '2026',
       eventSubtitle: 'ASHANTI REGIONAL QUALIFIERS',
-      eventLogo: 'nsmq_logo.png',
+      eventLogo: 'GANDSA.PNG',
       teams: [
-        { name: 'KUMASI ACAD.', score: 0, logo: 'kumasi.png' },
-        { name: 'EJISU SHTS', score: 0, logo: 'ejisu.png' },
-        { name: 'PREMPEH COLL.', score: 0, logo: 'prempeh.png' },
-        { name: 'OWASS', score: 0, logo: 'owass.png' }
+        { name: 'KUMASI ACAD.', score: 0, logo: 'GANDSA.PNG' },
+        { name: 'EJISU SHTS', score: 0, logo: 'KLINTAPS.PNG' },
+        { name: 'PREMPEH COLL.', score: 0, logo: 'MELSSA.PNG' },
+        { name: 'OWASS', score: 0, logo: 'MISA.PNG' }
       ]
     };
+
+    // Network Sync
+    try {
+      const peer = new Peer();
+      peer.on('open', () => connectToScoreboard(peer));
+    } catch(e) {}
+
+    function connectToScoreboard(peer) {
+      conn = peer.connect('nsmq-obs-display-screen-key');
+      conn.on('open', () => {
+        document.getElementById('statusBox').innerText = 'Connected to OBS Scoreboard';
+        document.getElementById('statusBox').className = 'status online';
+        sync();
+      });
+      conn.on('close', () => setTimeout(() => connectToScoreboard(peer), 2000));
+    }
 
     function sync() {
       state.eventTitle = document.getElementById('eventTitle').value;
@@ -75,19 +82,20 @@
 
       localStorage.setItem('quiz_full_state', JSON.stringify(state));
       bc.postMessage(state);
-      renderTeams();
-    }
-
-    function resetScores() {
-      if (confirm('Are you sure you want to reset all team scores to 0?')) {
-        state.teams.forEach(t => t.score = 0);
-        sync();
+      if (conn && conn.open) {
+        conn.send(state);
       }
     }
 
-    function changeScore(index, delta) {
-      state.teams[index].score = Math.max(0, state.teams[index].score + delta);
+    function setScore(i, value) {
+      state.teams[i].score = Math.max(0, parseInt(value) || 0);
       sync();
+    }
+
+    function changeScore(i, delta) {
+      state.teams[i].score = Math.max(0, state.teams[i].score + delta);
+      sync();
+      renderTeams();
     }
 
     function renderTeams() {
@@ -97,15 +105,13 @@
         const div = document.createElement('div');
         div.className = 'row';
         div.innerHTML = `
-          <label style="flex:2;">Team Name
-            <input type="text" value="${t.name}" onchange="state.teams[${i}].name=this.value; sync()">
-          </label>
-          <label style="flex:2;">Logo File / URL
-            <input type="text" placeholder="e.g. logo.png" value="${t.logo || ''}" onchange="state.teams[${i}].logo=this.value; sync()">
+          <label style="flex:2;">Team Name <input type="text" value="${t.name}" onchange="state.teams[${i}].name=this.value; sync()"></label>
+          <label style="flex:2;">Logo File / URL <input type="text" value="${t.logo || ''}" onchange="state.teams[${i}].logo=this.value; sync()"></label>
+          <label style="flex:1;">Type Score 
+            <input type="number" class="score-input" value="${t.score}" min="0" oninput="setScore(${i}, this.value)">
           </label>
           <div class="score-controls">
             <button class="btn-danger" onclick="changeScore(${i}, -1)">-1</button>
-            <span class="score-val">${t.score}</span>
             <button class="btn-success" onclick="changeScore(${i}, 1)">+1</button>
           </div>
         `;
@@ -113,7 +119,6 @@
       });
     }
 
-    // Initialize inputs on load
     document.getElementById('eventTitle').value = state.eventTitle || '';
     document.getElementById('eventSubtitle').value = state.eventSubtitle || '';
     document.getElementById('eventLogo').value = state.eventLogo || '';
