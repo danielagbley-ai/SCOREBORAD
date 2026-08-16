@@ -13,19 +13,38 @@
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; background: #0f172a; padding: 12px; border-radius: 6px; border: 1px solid #334155; }
     input[type="text"], input[type="number"] { padding: 9px; border-radius: 4px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 14px; width: 100%; box-sizing: border-box; }
-    button { padding: 8px 12px; font-size: 15px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; background: #0284c7; color: white; }
+    button { padding: 10px 16px; font-size: 14px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; background: #0284c7; color: white; }
     button:hover { background: #0369a1; }
+    button.btn-active { background: #22c55e !important; }
     button.btn-danger { background: #ef4444; }
     button.btn-success { background: #22c55e; }
     label { font-size: 12px; color: #94a3b8; display: flex; flex-direction: column; gap: 4px; width: 100%; font-weight: 600; }
     .score-input { font-size: 18px !important; font-weight: 800 !important; color: #facc15 !important; text-align: center; }
     .score-controls { display: flex; align-items: flex-end; gap: 6px; }
+    .mode-buttons { display: flex; gap: 10px; margin-top: 10px; }
   </style>
 </head>
 <body>
 
   <h2>NSMQ Broadcast Live Controller</h2>
   <div id="statusBox" class="status">Connecting to Scoreboard...</div>
+
+  <!-- SCREEN DISPLAY MODE SECTION -->
+  <div class="section">
+    <h3>Screen Display Mode</h3>
+    <div class="grid">
+      <label>Round Title (For Fullscreen)
+        <input type="text" id="roundTitle" value="END OF ROUND 1" onchange="sync()">
+      </label>
+      <div>
+        <label>Select Display Layout</label>
+        <div class="mode-buttons">
+          <button id="btnLowerThird" onclick="setDisplayMode('lower-third')">Lower Third</button>
+          <button id="btnFullscreen" onclick="setDisplayMode('fullscreen')">Full Screen Board</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="section">
     <h3>Tournament & Event Settings</h3>
@@ -48,6 +67,8 @@
     let conn = null;
 
     let state = JSON.parse(localStorage.getItem('quiz_full_state')) || {
+      displayMode: 'lower-third',
+      roundTitle: 'END OF ROUND 1',
       eventTitle: '2026',
       eventSubtitle: 'ASHANTI REGIONAL QUALIFIERS',
       eventLogo: 'GANDSA.PNG',
@@ -59,7 +80,6 @@
       ]
     };
 
-    // Network Sync
     try {
       const peer = new Peer();
       peer.on('open', () => connectToScoreboard(peer));
@@ -75,10 +95,22 @@
       conn.on('close', () => setTimeout(() => connectToScoreboard(peer), 2000));
     }
 
+    function setDisplayMode(mode) {
+      state.displayMode = mode;
+      sync();
+      updateModeButtons();
+    }
+
+    function updateModeButtons() {
+      document.getElementById('btnLowerThird').className = state.displayMode === 'lower-third' ? 'btn-active' : '';
+      document.getElementById('btnFullscreen').className = state.displayMode === 'fullscreen' ? 'btn-active' : '';
+    }
+
     function sync() {
       state.eventTitle = document.getElementById('eventTitle').value;
       state.eventSubtitle = document.getElementById('eventSubtitle').value;
       state.eventLogo = document.getElementById('eventLogo').value;
+      state.roundTitle = document.getElementById('roundTitle').value;
 
       localStorage.setItem('quiz_full_state', JSON.stringify(state));
       bc.postMessage(state);
@@ -122,7 +154,9 @@
     document.getElementById('eventTitle').value = state.eventTitle || '';
     document.getElementById('eventSubtitle').value = state.eventSubtitle || '';
     document.getElementById('eventLogo').value = state.eventLogo || '';
+    document.getElementById('roundTitle').value = state.roundTitle || 'END OF ROUND 1';
     renderTeams();
+    updateModeButtons();
   </script>
 </body>
 </html>
